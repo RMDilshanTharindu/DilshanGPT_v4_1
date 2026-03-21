@@ -13,7 +13,6 @@ pip install langchain langchain-community langchain_text_splitters langchain_ope
 
 pip install -U langchain-google-genai
 
-
 from langchain_community.document_loaders import TextLoader, DirectoryLoader  #help to read files
 from langchain_text_splitters import CharacterTextSplitter    #for create chunks
 from langchain_google_genai import GoogleGenerativeAIEmbeddings #for embeddings
@@ -78,6 +77,20 @@ def create_vector_store(chunks , precist_directory = "db/chroma_db"):
 
   return vector_store
 
+def retreve_related_chunks(query, vector_store):
+  """Retreve related chunks from the vector store."""
+
+  retrever = vectorStore.as_retriever(search_kwargs={"k": 2})
+
+  relevent_docs = retrever.invoke(query)
+
+  #print relevent docs
+  for i,doc in enumerate(relevent_docs):
+    print(f"\n Document : {i + 1}")
+    print(f"Content {doc.page_content}")
+
+  return relevent_docs
+
 print("Main Function")
 
 #Load The Files
@@ -88,3 +101,7 @@ chunks = split_documents(documents)
 
 #Create Vector store
 vectorStore = create_vector_store(chunks)
+
+#Retrive Related chunks
+query = "What are cybersecurity threats and how to prevent them?"
+relevent_docs = retreve_related_chunks(query, vectorStore)

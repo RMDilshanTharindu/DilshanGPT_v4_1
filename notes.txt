@@ -1,0 +1,17 @@
+feat: upgrade DilshanGPT to v4.1 with improved embedding pipeline and vector store
+
+- Integrated Google Generative AI embeddings (gemini-embedding-001)
+- Added document loading using DirectoryLoader
+- Implemented text chunking with CharacterTextSplitter
+- Built persistent Chroma vector database with cosine similarity
+- Structured modular pipeline (load → split → embed → store)
+- Cleaned and prepared code for scalable RAG improvements
+
+
+feat: add retrieval function to fetch relevant chunks from vector store
+
+- Implemented retriever using Chroma vector store
+- Configured top-k search (k=2) for relevant document retrieval
+- Added query-based chunk fetching
+- Printed retrieved document contents for debugging
+- Integrated retrieval step into main pipeline
