@@ -15,3 +15,12 @@ feat: add retrieval function to fetch relevant chunks from vector store
 - Added query-based chunk fetching
 - Printed retrieved document contents for debugging
 - Integrated retrieval step into main pipeline
+
+
+feat: add answer generation using Gemini LLM in RAG pipeline
+
+- Implemented generate_answer function using Gemini (gemini-3-flash-preview)
+- Constructed prompt with retrieved document chunks
+- Enabled context-aware answer generation
+- Added fallback response when information is insufficient
+- Integrated full pipeline: retrieve → generate → respond

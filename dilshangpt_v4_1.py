@@ -21,6 +21,8 @@ from langchain_chroma import Chroma #stores the vectors
 import os
 from google.colab import userdata
 
+from google import genai
+
 os.environ["GOOGLE_API_KEY"] = userdata.get('Google_API_Key')
 
 def load_documents(docs_path="docs"):
@@ -91,6 +93,30 @@ def retreve_related_chunks(query, vector_store):
 
   return relevent_docs
 
+def generate_answer(query, relevent_docs):
+  """Generate answer from the relevent chunks."""
+  chunks = ""
+  for i,doc in enumerate(relevent_docs):
+    chunks += (f'\nDocument {i}:  {doc.page_content}')
+  # print(chunks)
+
+  prompt = f"""Based on Following Documents please answer the question '{query}'
+
+  Documents :{chunks}
+
+  Please provide a clear helpful answer using only the infromation from these documents.If you can't find the answer in the document say 'I dont have ennough information to answer that question based on provided documents'"""
+
+  # print(prompt)
+
+  client = genai.Client()
+
+  response = client.models.generate_content(
+      model="gemini-3-flash-preview",
+      contents=prompt
+  )
+
+  return response.text
+
 print("Main Function")
 
 #Load The Files
@@ -103,5 +129,9 @@ chunks = split_documents(documents)
 vectorStore = create_vector_store(chunks)
 
 #Retrive Related chunks
-query = "What are cybersecurity threats and how to prevent them?"
+query = "Dilshan aims to become ?"
 relevent_docs = retreve_related_chunks(query, vectorStore)
+
+#Generate Sutable Answer using LLM
+generated_answer = generate_answer(query, relevent_docs)
+print(generated_answer)
