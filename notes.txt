@@ -24,3 +24,13 @@ feat: add answer generation using Gemini LLM in RAG pipeline
 - Enabled context-aware answer generation
 - Added fallback response when information is insufficient
 - Integrated full pipeline: retrieve → generate → respond
+
+
+
+feat: add conversational memory and query rewriting to RAG pipeline
+
+- Implemented chat_history to maintain conversation context
+- Added generate_proper_question for follow-up query rewriting
+- Integrated Gemini LLM for standalone query generation
+- Built interactive CLI chat loop (start_chat)
+- Enabled context-aware retrieval across multi-turn conversations

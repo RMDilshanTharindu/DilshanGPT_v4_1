@@ -117,6 +117,50 @@ def generate_answer(query, relevent_docs):
 
   return response.text
 
+# Store Coversations
+chat_history = []
+
+print(chat_history)
+
+def generate_proper_question(query):
+  """Generate conversation with the LLM."""
+  print(f"You Asked {query}")
+
+  if chat_history:
+    prompt = f"""Given The Chat History and a follow up question, Rewrite the question to be a standalone searchable question. Just return the rewritten question. Don't answer anything else.
+    Chat History : {chat_history}
+
+    follow up question : {query}
+
+    """
+    client = genai.Client()
+    response = client.models.generate_content(
+    model="gemini-3-flash-preview",
+    contents=prompt
+    )
+    print(f"Rewritten Question : {response.text}")
+    return response.text
+  else:
+    return query
+
+def start_chat():
+  """Start the chat."""
+  print("Ask The questions from DilshanGPT, Type exit to exit")
+  while True:
+    query = input("Enter Your Question(query) : ")
+    if query.lower() == "exit":
+      print("Exiting Chat")
+      break
+    proper_query=generate_proper_question(query)
+    prop_que_to_history = f"User asked : {proper_query}"
+    chat_history.append(prop_que_to_history)
+    relevent_docs = retreve_related_chunks(proper_query, vectorStore)
+
+    generated_answer = generate_answer(query, relevent_docs)
+    gen_ans_to_history = f"DilshanGPT response: {generated_answer}"
+    chat_history.append(gen_ans_to_history)
+    print(generated_answer)
+
 print("Main Function")
 
 #Load The Files
@@ -128,10 +172,4 @@ chunks = split_documents(documents)
 #Create Vector store
 vectorStore = create_vector_store(chunks)
 
-#Retrive Related chunks
-query = "Dilshan aims to become ?"
-relevent_docs = retreve_related_chunks(query, vectorStore)
-
-#Generate Sutable Answer using LLM
-generated_answer = generate_answer(query, relevent_docs)
-print(generated_answer)
+start_chat()
