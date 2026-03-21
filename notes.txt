@@ -34,3 +34,13 @@ feat: add conversational memory and query rewriting to RAG pipeline
 - Integrated Gemini LLM for standalone query generation
 - Built interactive CLI chat loop (start_chat)
 - Enabled context-aware retrieval across multi-turn conversations
+
+
+
+feat: implement hybrid retrieval using vector search and BM25
+
+- Added keyword-based retrieval using BM25
+- Combined semantic (vector) and keyword search results
+- Implemented deduplication of retrieved documents
+- Increased retrieval robustness with hybrid approach
+- Improved relevance of retrieved chunks

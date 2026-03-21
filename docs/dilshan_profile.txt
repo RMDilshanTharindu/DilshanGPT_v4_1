@@ -1,27 +1,71 @@
-Name: Dilshan Tharindu
-
 Background:
-Dilshan Tharindu is a Sri Lankan undergraduate student studying Information and Communication Technology (ICT). He is passionate about building a career in the tech industry, with a strong focus on software engineering, artificial intelligence, and cybersecurity.
+Dilshan Tharindu is a Sri Lankan undergraduate student currently pursuing a degree in Information and Communication Technology (ICT). He is deeply passionate about the technology industry and is actively working toward building a strong foundation in software engineering, artificial intelligence, and cybersecurity. From an early stage in his academic journey, he has shown a strong curiosity about how systems work internally, especially how software interacts with memory, networks, and real-world users.
+
+Dilshan is not just focused on theoretical knowledge. He believes in learning by doing, and he continuously experiments with small projects, tools, and systems to understand real-world applications of technology. His learning approach is highly practical and driven by curiosity rather than just academic requirements.
+
+Education and Learning Approach:
+Dilshan follows a self-driven learning methodology where he combines university education with self-study. He spends time exploring topics beyond the syllabus, including system design, backend architecture, and security vulnerabilities. He prefers breaking down complex topics into simple concepts and rebuilding them step by step.
+
+He is also interested in understanding how large-scale systems work, such as search engines, recommendation systems, and AI-powered applications. He often studies how data flows through systems and how performance and scalability are managed.
 
 Interests:
-- Artificial Intelligence and Machine Learning
-- Cybersecurity and Ethical Hacking
-- Startup Development
-- Problem Solving and Critical Thinking
+Dilshan has a wide range of interests within the tech field, including:
+
+- Artificial Intelligence and Machine Learning, especially real-world applications of AI
+- Cybersecurity and Ethical Hacking, including understanding vulnerabilities and attack vectors
+- Backend Development and System Architecture
+- Startup Development and building scalable tech products
+- Problem Solving, Logical Thinking, and Critical Analysis
+- Digital Forensics and investigation-related technologies
+- Building tools that can help detect fraud and suspicious behavior
+
+He is particularly interested in combining AI with cybersecurity to build intelligent systems that can automatically detect and prevent threats.
 
 Goals:
-Dilshan aims to become a successful tech entrepreneur by building innovative software products and security solutions. He is particularly interested in developing AI-powered systems that solve real-world problems.
+Dilshan's long-term goal is to become a successful tech entrepreneur and build his own startup in the technology sector. He aims to create innovative products that solve real-world problems, especially in areas like fraud detection, security automation, and intelligent systems.
+
+One of his key ambitions is to develop AI-powered systems that can analyze patterns, detect anomalies, and assist in decision-making processes. He wants to build systems that are not only functional but also scalable and efficient.
+
+In addition to building products, Dilshan also wants to contribute to the tech community by sharing knowledge, creating educational content, and helping beginners understand complex topics in a simple way.
 
 Current Learning Focus:
-- Data Structures and Algorithms
-- Backend Development
-- AI Model Integration
-- Cybersecurity fundamentals
+Dilshan is currently focusing on strengthening his core technical skills, including:
+
+- Data Structures and Algorithms to improve problem-solving ability
+- Backend Development using modern frameworks and APIs
+- Understanding how databases and storage systems work
+- AI Model Integration and working with embeddings and vector databases
+- Cybersecurity fundamentals, including network security and application security
+- Memory management concepts such as stack, heap, and pointers
+- Debugging and analyzing program behavior using tools like debuggers
+
+He is also exploring Retrieval-Augmented Generation (RAG) systems and learning how to combine vector search with language models to build intelligent applications.
 
 Projects:
-Dilshan is working on multiple personal projects to improve his skills, including building AI-based applications and experimenting with vector databases and retrieval systems.
+Dilshan is actively working on several personal projects to improve his skills and gain practical experience. These projects include:
+
+- Building AI-based applications that can process and understand text data
+- Developing small-scale search systems using embeddings and vector databases like FAISS
+- Experimenting with Retrieval-Augmented Generation (RAG) pipelines
+- Creating simple user interfaces to interact with backend AI systems
+- Testing and analyzing how different indexing and retrieval methods affect performance
+
+He believes that building projects is the best way to learn and often iterates on his work to improve efficiency and design.
+
+Work Ethic and Mindset:
+Dilshan is a highly motivated individual who believes in consistent improvement. He understands that mastering technology requires patience, discipline, and continuous effort. Even when faced with difficult concepts, he prefers to break them down and understand them step by step rather than giving up.
+
+He also values learning from mistakes and sees failures as opportunities to grow. His mindset is focused on long-term success rather than short-term results.
 
 Personality Traits:
-- Curious and self-driven learner
-- Highly motivated to grow
-- Interested in continuous self-improvement
+- Curious and always eager to learn new things
+- Self-driven and independent learner
+- Strong problem-solving mindset
+- Persistent and disciplined in achieving goals
+- Interested in innovation and creativity
+- Focused on personal growth and continuous improvement
+
+Additional Notes:
+Dilshan is particularly interested in building systems that combine multiple domains, such as AI + Cybersecurity, to create smarter and more adaptive solutions. He enjoys exploring how different technologies can be integrated to solve complex problems.
+
+He is also interested in understanding user behavior and designing systems that are both efficient and user-friendly. His long-term vision includes building impactful technology that can make a difference in real-world scenarios.

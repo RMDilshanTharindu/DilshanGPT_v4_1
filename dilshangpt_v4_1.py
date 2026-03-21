@@ -11,12 +11,18 @@ pip install -q -U google-genai
 
 pip install langchain langchain-community langchain_text_splitters langchain_openai langchain_chroma
 
+pip install langchain-classic
+
 pip install -U langchain-google-genai
+
+pip install rank_bm25
 
 from langchain_community.document_loaders import TextLoader, DirectoryLoader  #help to read files
 from langchain_text_splitters import CharacterTextSplitter    #for create chunks
 from langchain_google_genai import GoogleGenerativeAIEmbeddings #for embeddings
 from langchain_chroma import Chroma #stores the vectors
+
+from langchain_community.retrievers import BM25Retriever  #for keyword search
 
 import os
 from google.colab import userdata
@@ -44,7 +50,7 @@ def load_documents(docs_path="docs"):
 
   return documents
 
-def split_documents(documents,chunk_size=100,chunk_overlap=0):
+def split_documents(documents,chunk_size=300,chunk_overlap=0):
   """Split documents into chunks."""
 
   text_splitter = CharacterTextSplitter(
@@ -82,16 +88,47 @@ def create_vector_store(chunks , precist_directory = "db/chroma_db"):
 def retreve_related_chunks(query, vector_store):
   """Retreve related chunks from the vector store."""
 
-  retrever = vectorStore.as_retriever(search_kwargs={"k": 2})
+  vector_retrever = vectorStore.as_retriever(search_kwargs={"k": 3})
 
-  relevent_docs = retrever.invoke(query)
+  relevent_docs = vector_retrever.invoke(query)
 
   #print relevent docs
   for i,doc in enumerate(relevent_docs):
-    print(f"\n Document : {i + 1}")
+    print(f"\n Document From Vector DB: {i + 1}")
     print(f"Content {doc.page_content}")
 
   return relevent_docs
+
+def keyword_search(query,chunks=chunks):
+  """Retreve related chunks from the vector store."""
+  bm25_retriever = BM25Retriever.from_documents(chunks)
+  bm25_retriever.k = 2
+
+  test_query = query
+  keyword_docs  = bm25_retriever.invoke(test_query)
+
+  for doc in keyword_docs[:2]:
+    print(f"\n\n Docs Found From Keyword {doc.page_content}")
+  return keyword_docs
+
+def hybrid_retrieve(query , k=5):
+    docs_vec = retreve_related_chunks(query, vectorStore)
+    docs_bm25 = keyword_search(query)
+
+    combined = docs_vec + docs_bm25
+
+    # Remove duplicates
+    seen = set()
+    unique_docs = []
+
+    for doc in combined:
+        content = doc.page_content
+        if content not in seen:
+            seen.add(content)
+            unique_docs.append(doc)
+
+    print(f'\n\n Docs From hybrid Search {unique_docs}')
+    return unique_docs[:k]
 
 def generate_answer(query, relevent_docs):
   """Generate answer from the relevent chunks."""
@@ -138,7 +175,7 @@ def generate_proper_question(query):
     model="gemini-3-flash-preview",
     contents=prompt
     )
-    print(f"Rewritten Question : {response.text}")
+    print(f"\n\nRewritten Question : {response.text}")
     return response.text
   else:
     return query
@@ -154,9 +191,9 @@ def start_chat():
     proper_query=generate_proper_question(query)
     prop_que_to_history = f"User asked : {proper_query}"
     chat_history.append(prop_que_to_history)
-    relevent_docs = retreve_related_chunks(proper_query, vectorStore)
+    hybrid_docs = hybrid_retrieve(proper_query)
 
-    generated_answer = generate_answer(query, relevent_docs)
+    generated_answer = generate_answer(query, hybrid_docs)
     gen_ans_to_history = f"DilshanGPT response: {generated_answer}"
     chat_history.append(gen_ans_to_history)
     print(generated_answer)
