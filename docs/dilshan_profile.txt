@@ -1,0 +1,27 @@
+Name: Dilshan Tharindu
+
+Background:
+Dilshan Tharindu is a Sri Lankan undergraduate student studying Information and Communication Technology (ICT). He is passionate about building a career in the tech industry, with a strong focus on software engineering, artificial intelligence, and cybersecurity.
+
+Interests:
+- Artificial Intelligence and Machine Learning
+- Cybersecurity and Ethical Hacking
+- Startup Development
+- Problem Solving and Critical Thinking
+
+Goals:
+Dilshan aims to become a successful tech entrepreneur by building innovative software products and security solutions. He is particularly interested in developing AI-powered systems that solve real-world problems.
+
+Current Learning Focus:
+- Data Structures and Algorithms
+- Backend Development
+- AI Model Integration
+- Cybersecurity fundamentals
+
+Projects:
+Dilshan is working on multiple personal projects to improve his skills, including building AI-based applications and experimenting with vector databases and retrieval systems.
+
+Personality Traits:
+- Curious and self-driven learner
+- Highly motivated to grow
+- Interested in continuous self-improvement

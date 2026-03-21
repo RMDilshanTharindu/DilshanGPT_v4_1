@@ -1,0 +1,34 @@
+Title: Introduction to Cybersecurity
+
+Cybersecurity is the practice of protecting systems, networks, and data from digital attacks. These attacks often aim to access, modify, or destroy sensitive information.
+
+Key Concepts:
+
+1. Confidentiality:
+Ensuring that information is only accessible to authorized users.
+
+2. Integrity:
+Maintaining the accuracy and consistency of data.
+
+3. Availability:
+Ensuring systems and data are accessible when needed.
+
+Common Threats:
+
+- Malware: Malicious software designed to damage systems
+- Phishing: Fake messages used to steal sensitive information
+- Ransomware: Attacks that lock data and demand payment
+- Man-in-the-Middle Attacks: Intercepting communication between two parties
+
+Security Measures:
+
+- Strong passwords and authentication
+- Firewalls and antivirus software
+- Encryption of sensitive data
+- Regular software updates
+
+Career Areas:
+- Ethical Hacking
+- Digital Forensics
+- Network Security
+- Security Analysis
