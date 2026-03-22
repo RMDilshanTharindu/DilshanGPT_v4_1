@@ -44,3 +44,16 @@ feat: implement hybrid retrieval using vector search and BM25
 - Implemented deduplication of retrieved documents
 - Increased retrieval robustness with hybrid approach
 - Improved relevance of retrieved chunks
+
+
+
+feat: add multimodal document processing and AI-enhanced chunking to RAG pipeline
+
+- Integrated PDF parsing using unstructured library
+- Implemented title-based smart chunking for PDFs
+- Added support for extracting tables and images from documents
+- Built content-type separation (text, tables, images)
+- Generated AI-enhanced summaries for complex chunks
+- Converted enriched chunks into LangChain documents with metadata
+- Combined text and PDF pipelines into unified vector store
+- Improved retrieval quality with richer, searchable content

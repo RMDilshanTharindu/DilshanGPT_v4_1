@@ -17,17 +17,24 @@ pip install -U langchain-google-genai
 
 pip install rank_bm25
 
+!apt-get install poppler-utils tesseract-ocr libmagic-dev
+
+pip install "unstructured[all-docs]"
+
 from langchain_community.document_loaders import TextLoader, DirectoryLoader  #help to read files
 from langchain_text_splitters import CharacterTextSplitter    #for create chunks
 from langchain_google_genai import GoogleGenerativeAIEmbeddings #for embeddings
 from langchain_chroma import Chroma #stores the vectors
 
-from langchain_community.retrievers import BM25Retriever  #for keyword search
+from langchain_community.retrievers import BM25Retriever
 
 import os
 from google.colab import userdata
 
 from google import genai
+
+from unstructured.partition.pdf import partition_pdf
+from unstructured.chunking.title import chunk_by_title
 
 os.environ["GOOGLE_API_KEY"] = userdata.get('Google_API_Key')
 
@@ -67,6 +74,212 @@ def split_documents(documents,chunk_size=300,chunk_overlap=0):
 
   return chunks
 
+def partition_pdf_doc(file_path: str):
+  """Extract Elements From the PDF.using unstructured libarary"""
+  elements = partition_pdf(
+      file_path,
+      strategy="hi_res",
+      extract_image_block_types=["Image"],
+      extract_image_block_to_payload=True,  # store image as Base64
+      infer_table_structure=True
+      )
+  print(f"extracted {len(elements)} elements")
+  return elements
+
+#file_path = './docs/CYBER_SECURITY.pdf'
+#elements = partition_pdf_doc(file_path)
+
+#elements
+#elements[10].to_dict()['text']
+
+def create_chunks_by_title(elements):
+  """Create Smart chunks From the extracted elements of the PDF."""
+  pdf_chunks = chunk_by_title(
+      elements,   #parsed pdf elements
+      max_characters=3000,   # hard-limt : nerver exceed 3000
+      new_after_n_chars=2400, # try to start creting a new chunk after 2400
+      combine_text_under_n_chars=500 # merge tiny chunks under 500
+  )
+
+  print(f"Smart chunk Created : {len(pdf_chunks)}")
+  return pdf_chunks
+
+#pdf_chunks = create_chunks_by_title(elements)
+
+#pdf_chunks
+#pdf_chunks[1].to_dict()
+#pdf_chunks[2].metadata.orig_elements   contain images
+#pdf_chunks[2].metadata.orig_elements[4]   image class
+#pdf_chunks[2].metadata.orig_elements[4].to_dict()  image contain
+#pdf_chunks[2].metadata.orig_elements[4].to_dict()['metadata']['image_base64']
+
+#test_chunk = pdf_chunks[2]
+
+#test_chunk.to_dict()
+
+def seperate_content_types(pdf_chunk):
+  """Seperate the content types from the chunk."""
+  content_data = {
+      'text' : pdf_chunk.text,
+      'tables' : [],
+      'images' : [],
+      'types'  : ['text']
+  }
+
+  #print(f"{hasattr(chunk,'metadata')}")
+  #print(f"{hasattr(chunk.metadata,'orig_elements')}")
+
+  if hasattr(pdf_chunk,'metadata') and hasattr(pdf_chunk.metadata,'orig_elements'):
+    #print("metadata found, and origelements under metadata found")
+    for element in pdf_chunk.metadata.orig_elements:
+      element_type = type(element).__name__
+      print(f"Element Type Found from seperate content type() : {element_type}")
+
+      if element_type == 'Table':
+        content_data['types'].append('table')
+        table_html = getattr(element.meatadata,'text_as_html',element.text)
+        content_data['tables'].append(table_html)
+
+      elif element_type == 'Image':
+        if hasattr(element,'metadata') and hasattr(element.metadata,'image_base64'):
+          content_data['types'].append('image')
+          content_data['images'].append(element.metadata.image_base64)
+
+
+  content_data['types'] = list(set(content_data['types']))
+  return content_data
+
+# content_data = seperate_content_types(test_chunk)
+
+# print(f"\nContent Data after analyze : {content_data}")
+# print(f"\nContent image {content_data['images']}")
+# print(f"\nTypes {content_data['types']}")
+
+#content_data
+
+from typing import List
+from google import genai
+def create_ai_enhansed_summary(text: str,tables: List[str],images: List[str]) -> str:
+  """Create AI enhanced summary of the text."""
+  prompt_text = f""" You are creating a searchable discryption for document content retrieval.
+
+  CONTENT TO ANALYZE:
+  TEXT CONTENT : {text}
+
+  """
+
+  if tables:
+    prompt_text += "TABLES :\n"
+    for i,table in enumerate(tables):
+      prompt_text += f"\nTable {i + 1} :\n {table}\n"
+
+    prompt_text += """
+       YOUR TASK:
+       generate a comprehensive, searchable discryption that covers:
+
+       1. Key Facts,numbers and data points from text and tabel
+       2. Main topics and concepts discussed
+       3. Questions this content could answer
+       4. Alternative search terms users might use
+
+       make it detailed and searchable - prioritize fidability over brivity
+
+       SEARCHABLE DISCRIPTION :
+      """
+
+  # Correct way to construct message_content for multimodal input using genai.types.Part
+  message_content = [genai.types.Part(text=prompt_text)]
+
+  for image_base64 in images:
+    message_content.append(
+        genai.types.Part(
+            inline_data=genai.types.Blob(
+                mime_type='image/jpeg',
+                data=image_base64
+            )
+        )
+    )
+
+  print(f"Message Content : {message_content}" )
+
+  #Send to LLM And Get Summerized Text
+  client = genai.Client()
+  response = client.models.generate_content(
+      model="gemini-3-flash-preview",
+      contents=message_content
+  )
+
+  return response.text
+
+# enhansed_pdf_chunk = create_ai_enhansed_summary(
+#             content_data['text'],
+#             content_data['tables'],
+#             content_data['images']
+#         )
+# print(f"Ai summery creted suvessfully")
+# print(f"Enhansed pdf chunk {enhansed_pdf_chunk}")
+
+from IPython.core.display import json
+from langchain_core.documents import Document
+def summerise_chunks(pdf_chunks):
+  """Summerise the chunks that contain tables,images to text"""
+
+  lanchain_documnets = []
+  total_chunks = len(pdf_chunks)
+
+  for i,pdf_chunk in enumerate(pdf_chunks):
+    print(f"Summerising Chunk {i + 1} of {total_chunks}")
+
+    #Analyse chunk contains
+    content_data = seperate_content_types(pdf_chunk)
+    print(f"\nContent Data after analyze : {content_data}")
+
+    print(f"\nTable Found : {len(content_data['tables'])}")
+    print(f"\nImages Found : {len(content_data['images'])}")
+
+    #Create AI enhansed summmery if contian Table/Images
+    if 'table' in content_data['types'] or 'image' in content_data['types']:
+      print(f"\n Summerising the pdf chunk")
+
+      try:
+        enhansed_pdf_chunk = create_ai_enhansed_summary(
+            content_data['text'],
+            content_data['tables'],
+            content_data['images']
+        )
+        print(f"Ai summery creted suvessfully")
+        print(f"Enhansed pdf chunk {enhansed_pdf_chunk}")
+
+      except:
+        print(f"Ai summery creted failed")
+        enhansed_pdf_chunk = content_data['text']
+
+    else:
+      print(f"\n Using Raw Text no image/tables")
+      enhansed_pdf_chunk = content_data['text']
+
+    #Create Langchain Document with rich metadata
+    doc = Document(
+        page_content=enhansed_pdf_chunk,
+        metadata={
+            "original_content" : json.dumps({
+                "raw_text" : content_data['text'],
+                "tables_html" : content_data['tables'],
+                "images_base64" : content_data['images']
+            })
+        }
+    )
+
+    lanchain_documnets.append(doc)
+
+  print(f"Total Chunks Summerised : {len(lanchain_documnets)}")
+  return lanchain_documnets
+
+#pdf_chunks_after_summarise = summerise_chunks(pdf_chunks)
+
+#chunks[0].page_content
+#chunks[0].metadata
+
 def create_vector_store(chunks , precist_directory = "db/chroma_db"):
   """Create a vector store from chunks."""
   print("Creating Embedding and Storing in Chroma DB")
@@ -85,6 +298,10 @@ def create_vector_store(chunks , precist_directory = "db/chroma_db"):
 
   return vector_store
 
+#vectorStore = create_vector_store(chunks)
+
+#query = "What are the types of mobility"
+
 def retreve_related_chunks(query, vector_store):
   """Retreve related chunks from the vector store."""
 
@@ -99,7 +316,10 @@ def retreve_related_chunks(query, vector_store):
 
   return relevent_docs
 
-def keyword_search(query,chunks=chunks):
+#test = retreve_related_chunks(query,vectorStore)
+#print(test)
+
+def keyword_search(query,chunks):
   """Retreve related chunks from the vector store."""
   bm25_retriever = BM25Retriever.from_documents(chunks)
   bm25_retriever.k = 2
@@ -113,7 +333,7 @@ def keyword_search(query,chunks=chunks):
 
 def hybrid_retrieve(query , k=5):
     docs_vec = retreve_related_chunks(query, vectorStore)
-    docs_bm25 = keyword_search(query)
+    docs_bm25 = keyword_search(query, chunks)
 
     combined = docs_vec + docs_bm25
 
@@ -180,6 +400,30 @@ def generate_proper_question(query):
   else:
     return query
 
+print("Main Function")
+
+#Load The text Files
+documents = load_documents(docs_path="docs")
+
+#----------------------------------------------------CHUNKING-----------------------------------------
+#Chunk The text Documnets
+text_chunks = split_documents(documents)
+
+#Chunk The Pdf Documents
+file_path = './docs/CYBER_SECURITY.pdf'
+#elements = partition_pdf_doc(file_path)  # make some chunks
+pdf_chunks = create_chunks_by_title(elements) # create more smart chunks
+pdf_chunks_after_summarise = summerise_chunks(pdf_chunks)  # handle image/tables in the pdf  : langchain dociments
+
+
+#Combine All chunks
+chunks = text_chunks + pdf_chunks_after_summarise
+print(f"\nTotal Chunks : {len(chunks)}")
+print(f"\n Chunks {chunks}")
+
+#Create Vector store
+vectorStore = create_vector_store(chunks)
+
 def start_chat():
   """Start the chat."""
   print("Ask The questions from DilshanGPT, Type exit to exit")
@@ -197,16 +441,5 @@ def start_chat():
     gen_ans_to_history = f"DilshanGPT response: {generated_answer}"
     chat_history.append(gen_ans_to_history)
     print(generated_answer)
-
-print("Main Function")
-
-#Load The Files
-documents = load_documents(docs_path="docs")
-
-#Chunk The Documnets
-chunks = split_documents(documents)
-
-#Create Vector store
-vectorStore = create_vector_store(chunks)
 
 start_chat()
