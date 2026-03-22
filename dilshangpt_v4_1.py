@@ -7,19 +7,19 @@ Original file is located at
     https://colab.research.google.com/drive/18O90XzilKDAxRLFBOptEfQujRomv4sz-
 """
 
-pip install -q -U google-genai
+#pip install -q -U google-genai
 
-pip install langchain langchain-community langchain_text_splitters langchain_openai langchain_chroma
+#pip install langchain langchain-community langchain_text_splitters langchain_openai langchain_chroma
 
-pip install langchain-classic
+#pip install langchain-classic
 
-pip install -U langchain-google-genai
+#pip install -U langchain-google-genai
 
-pip install rank_bm25
+#pip install rank_bm25
 
-!apt-get install poppler-utils tesseract-ocr libmagic-dev
+#!apt-get install poppler-utils tesseract-ocr libmagic-dev
 
-pip install "unstructured[all-docs]"
+#pip install "unstructured[all-docs]"
 
 from langchain_community.document_loaders import TextLoader, DirectoryLoader  #help to read files
 from langchain_text_splitters import CharacterTextSplitter    #for create chunks
@@ -29,14 +29,14 @@ from langchain_chroma import Chroma #stores the vectors
 from langchain_community.retrievers import BM25Retriever
 
 import os
-from google.colab import userdata
 
 from google import genai
 
 from unstructured.partition.pdf import partition_pdf
 from unstructured.chunking.title import chunk_by_title
 
-os.environ["GOOGLE_API_KEY"] = userdata.get('Google_API_Key')
+os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
+
 
 def load_documents(docs_path="docs"):
   """Load all .txt files in the directory."""
@@ -305,7 +305,7 @@ def create_vector_store(chunks , precist_directory = "db/chroma_db"):
 def retreve_related_chunks(query, vector_store):
   """Retreve related chunks from the vector store."""
 
-  vector_retrever = vectorStore.as_retriever(search_kwargs={"k": 3})
+  vector_retrever = vector_store.as_retriever(search_kwargs={"k": 3})
 
   relevent_docs = vector_retrever.invoke(query)
 
@@ -331,8 +331,8 @@ def keyword_search(query,chunks):
     print(f"\n\n Docs Found From Keyword {doc.page_content}")
   return keyword_docs
 
-def hybrid_retrieve(query , k=5):
-    docs_vec = retreve_related_chunks(query, vectorStore)
+def hybrid_retrieve(query ,vector_store, chunks, k=5):
+    docs_vec = retreve_related_chunks(query, vector_store)
     docs_bm25 = keyword_search(query, chunks)
 
     combined = docs_vec + docs_bm25
@@ -400,46 +400,121 @@ def generate_proper_question(query):
   else:
     return query
 
-print("Main Function")
+def create_chunks():
 
-#Load The text Files
-documents = load_documents(docs_path="docs")
+    #Load The text Files
+    documents = load_documents(docs_path="docs")
+    #Chunk The Text Documents
+    text_chunks = split_documents(documents)
+    
+    #Chunk The Pdf Documents
+    file_path = './docs/CYBER_SECURITY.pdf'
+    elements = partition_pdf_doc(file_path)
+    pdf_chunks = create_chunks_by_title(elements)
+    pdf_chunks_summarized = summerise_chunks(pdf_chunks)
 
-#----------------------------------------------------CHUNKING-----------------------------------------
-#Chunk The text Documnets
-text_chunks = split_documents(documents)
+    #Combine All chunks
+    chunks = text_chunks + pdf_chunks_summarized
 
-#Chunk The Pdf Documents
-file_path = './docs/CYBER_SECURITY.pdf'
-#elements = partition_pdf_doc(file_path)  # make some chunks
-pdf_chunks = create_chunks_by_title(elements) # create more smart chunks
-pdf_chunks_after_summarise = summerise_chunks(pdf_chunks)  # handle image/tables in the pdf  : langchain dociments
+    return chunks
 
 
-#Combine All chunks
-chunks = text_chunks + pdf_chunks_after_summarise
-print(f"\nTotal Chunks : {len(chunks)}")
-print(f"\n Chunks {chunks}")
+chunks = create_chunks()
 
-#Create Vector store
-vectorStore = create_vector_store(chunks)
+
+def build_and_save_db():
+    
+    #Create Vector store
+    vectorStore = create_vector_store(chunks)
+
+    print("Database built and saved locally!")
+
+
+
+def get_existing_vector_store():
+    embedding_model = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
+    
+    # Load the database from the folder
+    vector_store = Chroma(
+        persist_directory="./db/chroma_db", 
+        embedding_function=embedding_model,
+        collection_metadata={"hnsw:space": "cosine"}
+    )
+    return vector_store
 
 def start_chat():
-  """Start the chat."""
-  print("Ask The questions from DilshanGPT, Type exit to exit")
-  while True:
-    query = input("Enter Your Question(query) : ")
-    if query.lower() == "exit":
-      print("Exiting Chat")
-      break
-    proper_query=generate_proper_question(query)
-    prop_que_to_history = f"User asked : {proper_query}"
-    chat_history.append(prop_que_to_history)
-    hybrid_docs = hybrid_retrieve(proper_query)
+    # Load the DB once at the start
+    vectorStore = get_existing_vector_store()
+    
+    print("Chatbot Ready! Type exit to quit.")
+    while True:
+        query = input("User: ")
+        if query.lower() == "exit": break
+        
+        # Now use the 'vectorStore' we loaded above 
+        # (Make sure your hybrid_retrieve function accepts vectorStore as an argument)
+        proper_query = generate_proper_question(query)
+        prop_que_to_history = f"User asked : {proper_query}"
+        chat_history.append(prop_que_to_history)
+        docs = hybrid_retrieve(proper_query, vectorStore , chunks) # Pass it here!
+        
+        response = generate_answer(query, docs)
+        gen_ans_to_history = f"DilshanGPT response: {generated_answer}"
+        chat_history.append(gen_ans_to_history)
+        print(f"DilshanGPT: {response}")
 
-    generated_answer = generate_answer(query, hybrid_docs)
-    gen_ans_to_history = f"DilshanGPT response: {generated_answer}"
-    chat_history.append(gen_ans_to_history)
-    print(generated_answer)
 
-start_chat()
+
+if __name__ == "__main__":
+    db_path = "./db/chroma_db"
+    
+    if not os.path.exists(db_path):
+        print("Database not found. Building now...")
+        build_and_save_db()
+    else:
+        print("Database found! Loading chat...")
+        
+    start_chat()
+
+
+
+
+#print("Main Function")
+
+#documents = load_documents(docs_path="docs")
+
+#----------------------------------------------------CHUNKING-----------------------------------------
+#text_chunks = split_documents(documents)
+
+#Chunk The Pdf Documents
+# file_path = './docs/CYBER_SECURITY.pdf'
+# elements = partition_pdf_doc(file_path)  # make some chunks
+# pdf_chunks = create_chunks_by_title(elements) # create more smart chunks
+# pdf_chunks_after_summarise = summerise_chunks(pdf_chunks)  # handle image/tables in the pdf  : langchain dociments
+
+
+# chunks = text_chunks + pdf_chunks_after_summarise
+# print(f"\nTotal Chunks : {len(chunks)}")
+# print(f"\n Chunks {chunks}")
+
+#ectorStore = create_vector_store(chunks)
+
+# def start_chat():
+#   """Start the chat."""
+#   print("Ask The questions from DilshanGPT, Type exit to exit")
+#   while True:
+#     query = input("Enter Your Question(query) : ")
+#     if query.lower() == "exit":
+#       print("Exiting Chat")
+#       break
+    #proper_query=generate_proper_question(query)
+    # prop_que_to_history = f"User asked : {proper_query}"
+    # chat_history.append(prop_que_to_history)
+    #hybrid_docs = hybrid_retrieve(proper_query)
+
+    #generated_answer = generate_answer(query, hybrid_docs)
+    # gen_ans_to_history = f"DilshanGPT response: {generated_answer}"
+    # chat_history.append(gen_ans_to_history)
+    #print(generated_answer)
+
+# start_chat()

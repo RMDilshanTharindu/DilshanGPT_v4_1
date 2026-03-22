@@ -57,3 +57,10 @@ feat: add multimodal document processing and AI-enhanced chunking to RAG pipelin
 - Converted enriched chunks into LangChain documents with metadata
 - Combined text and PDF pipelines into unified vector store
 - Improved retrieval quality with richer, searchable content
+
+
+feat: optimize startup by loading existing vector DB
+
+- Added check for existing Chroma DB directory
+- Skip embedding and indexing if DB already exists
+- Improved startup speed by going directly to chat mode

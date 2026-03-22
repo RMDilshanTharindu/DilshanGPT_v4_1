@@ -1,0 +1,35 @@
+# Core LLM + Google Gemini
+google-genai
+langchain
+langchain-community
+langchain-text-splitters
+langchain-openai
+langchain-chroma
+langchain-google-genai
+langchain-classic
+
+# Vector DB
+chromadb
+
+# Retrieval
+rank-bm25
+
+# Document Processing
+unstructured[all-docs]
+unstructured-inference
+
+# PDF + OCR dependencies
+pytesseract
+pdf2image
+
+# ML (needed for hi_res PDF processing)
+torch
+torchvision
+
+# Utilities
+numpy
+pandas
+
+# Optional but useful
+tqdm
+python-dotenv
