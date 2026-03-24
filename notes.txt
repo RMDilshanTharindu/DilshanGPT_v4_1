@@ -73,3 +73,11 @@ feat: implement persistent chunk storage and load existing vector database
 - Load chunks from local storage for BM25 retriever
 - Load existing Chroma vector DB instead of rebuilding
 - Improve startup performance by skipping ingestion if data exists
+
+
+
+refactor: modularize chat functionality into chat.py
+
+- moved chat loop to separate file
+- imported core RAG functions from main module
+- improved code organization and maintainability

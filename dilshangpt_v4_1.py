@@ -376,11 +376,11 @@ def generate_answer(query, relevent_docs):
   return response.text
 
 # Store Coversations
-chat_history = []
+#chat_history = []
 
-print(chat_history)
+#print(chat_history)
 
-def generate_proper_question(query):
+def generate_proper_question(query,chat_history):
   """Generate conversation with the LLM."""
   print(f"You Asked {query}")
 
@@ -464,42 +464,42 @@ def get_existing_vector_store():
     )
     return vector_store
 
-def start_chat():
+# def start_chat():
     # Load the DB From the local Storage
-    vectorStore = get_existing_vector_store()
+    ##vectorStore = get_existing_vector_store()
     # Load the chunks From the local Storage
-    chunks = load_saved_chunks()
+    ##chunks = load_saved_chunks()
 
 
-    print("Chatbot Ready! Type exit to quit.")
-    while True:
-        query = input("User: ")
-        if query.lower() == "exit": break
+    #print("Chatbot Ready! Type exit to quit.")
+    # while True:
+    #     query = input("User: ")
+    #     if query.lower() == "exit": break
         
         # Now use the 'vectorStore' we loaded above 
         # (Make sure your hybrid_retrieve function accepts vectorStore as an argument)
-        proper_query = generate_proper_question(query)
-        prop_que_to_history = f"User asked : {proper_query}"
-        chat_history.append(prop_que_to_history)
-        docs = hybrid_retrieve(proper_query, vectorStore , chunks) # Pass it here!
+        # proper_query = generate_proper_question(query,chat_history)
+        # prop_que_to_history = f"User asked : {proper_query}"
+        # chat_history.append(prop_que_to_history)
+        # docs = hybrid_retrieve(proper_query, vectorStore , chunks) # Pass it here!
         
-        response = generate_answer(query, docs)
-        gen_ans_to_history = f"DilshanGPT response: {response}"
-        chat_history.append(gen_ans_to_history)
-        print(f"DilshanGPT: {response}")
+        # response = generate_answer(query, docs)
+        # gen_ans_to_history = f"DilshanGPT response: {response}"
+        # chat_history.append(gen_ans_to_history)
+        # print(f"DilshanGPT: {response}")
 
 
 
-if __name__ == "__main__":
-    db_path = "./db/chroma_db"
+# if __name__ == "__main__":
+#     db_path = "./db/chroma_db"
     
-    if not os.path.exists(db_path):
-        print("Database not found. Building now...")
-        build_and_save_db()
-    else:
-        print("Database found! Loading chat...")
+#     if not os.path.exists(db_path):
+#         print("Database not found. Building now...")
+#         build_and_save_db()
+#     else:
+#         print("Database found! Loading chat...")
         
-    start_chat()
+#     start_chat()
 
 
 
@@ -542,4 +542,4 @@ if __name__ == "__main__":
     # chat_history.append(gen_ans_to_history)
     #print(generated_answer)
 
-# start_chat()
+# start_chat():
