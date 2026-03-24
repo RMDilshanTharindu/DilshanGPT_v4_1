@@ -91,3 +91,15 @@ feat: implement API interface for RAG system
 - remove unnecessary debug prints
 - improve code cleanliness for production usage
 
+
+
+
+feat: add React frontend and integrate with demo API
+
+- Created initial React chat UI for DilshanGPT
+- Implemented message handling and loading state
+- Connected frontend to backend /chat endpoint
+- Added demo API for testing without LLM cost
+- Enabled CORS in FastAPI to allow frontend communication
+- Verified end-to-end flow (frontend ↔ backend)"
+
