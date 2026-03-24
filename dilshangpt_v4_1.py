@@ -28,6 +28,7 @@ from langchain_chroma import Chroma #stores the vectors
 
 from langchain_community.retrievers import BM25Retriever
 
+import pickle
 import os
 
 from google import genai
@@ -418,12 +419,33 @@ def create_chunks():
 
     return chunks
 
+def save_chunks(chunks, filename="chunks_data.pkl"):
+    """Saves the processed Langchain documents to a local file."""
+    with open(filename, 'wb') as f:
+        pickle.dump(chunks, f)
+    print(f"Successfully saved {len(chunks)} chunks to {filename}")
 
-chunks = create_chunks()
+
+def load_saved_chunks(filename="chunks_data.pkl"):
+    """Loads chunks from local storage for the BM25 retriever."""
+    if os.path.exists(filename):
+        with open(filename, 'rb') as f:
+            chunks = pickle.load(f)
+        print(f"Loaded {len(chunks)} chunks from local storage.")
+        return chunks
+    else:
+        print("No saved chunks found! You need to run the ingestion script first.")
+        return None
 
 
 def build_and_save_db():
     
+    #Create Chunks
+    chunks = create_chunks()
+
+    #Save Chunks on Local Storage
+    save_chunks(chunks)
+
     #Create Vector store
     vectorStore = create_vector_store(chunks)
 
@@ -443,9 +465,12 @@ def get_existing_vector_store():
     return vector_store
 
 def start_chat():
-    # Load the DB once at the start
+    # Load the DB From the local Storage
     vectorStore = get_existing_vector_store()
-    
+    # Load the chunks From the local Storage
+    chunks = load_saved_chunks()
+
+
     print("Chatbot Ready! Type exit to quit.")
     while True:
         query = input("User: ")
@@ -459,7 +484,7 @@ def start_chat():
         docs = hybrid_retrieve(proper_query, vectorStore , chunks) # Pass it here!
         
         response = generate_answer(query, docs)
-        gen_ans_to_history = f"DilshanGPT response: {generated_answer}"
+        gen_ans_to_history = f"DilshanGPT response: {response}"
         chat_history.append(gen_ans_to_history)
         print(f"DilshanGPT: {response}")
 

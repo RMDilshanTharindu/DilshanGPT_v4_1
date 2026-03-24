@@ -64,3 +64,12 @@ feat: optimize startup by loading existing vector DB
 - Added check for existing Chroma DB directory
 - Skip embedding and indexing if DB already exists
 - Improved startup speed by going directly to chat mode
+
+
+
+feat: implement persistent chunk storage and load existing vector database
+
+- Save processed chunks using pickle
+- Load chunks from local storage for BM25 retriever
+- Load existing Chroma vector DB instead of rebuilding
+- Improve startup performance by skipping ingestion if data exists
