@@ -30,6 +30,14 @@ class ChatRequest(BaseModel):
 # 2. Initialize FastAPI
 app = FastAPI(title="DilshanGPT API")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],  # IMPORTANT (allows OPTIONS)
+    allow_headers=["*"],
+)
+
 # 3. Global variables to hold our loaded DB (so we don't reload every request)
 vectorStore = None
 chunks = None

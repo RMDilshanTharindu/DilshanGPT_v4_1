@@ -28,6 +28,7 @@ demo_responses = [
     "Vector databases store embeddings and help find similar content efficiently.",
     "AI applications include chatbots, recommendation systems, and fraud detection.",
     "I'm a demo response — your real API will generate smarter answers 😄",
+    "Based on the provided documents, Dilshan Tharindu is passionate about the following:\n\n*   **The technology industry:** He is described as being \"deeply passionate\" about this field.\n*   **Building a foundation in specific tech areas:** He is actively working toward building a strong foundation in software engineering, artificial intelligence, and cybersecurity.\n*   **System internals:** He has a strong curiosity about how systems work internally, specifically how software interacts with memory, networks, and real-world users."
 ]
 
 
@@ -52,6 +53,9 @@ async def chat_endpoint(request: ChatRequest):
         response = "AI involves machine learning, data processing, and intelligent automation."
     elif "rag" in user_msg:
         response = "RAG combines vector search with LLMs to generate accurate answers."
+    elif "test complex" in user_msg:
+        response = "Based on the provided documents, Dilshan Tharindu is passionate about the following:\n\n*   **The technology industry:** He is described as being \"deeply passionate\" about this field.\n*   **Building a foundation in specific tech areas:** He is actively working toward building a strong foundation in software engineering, artificial intelligence, and cybersecurity.\n*   **System internals:** He has a strong curiosity about how systems work internally, specifically how software interacts with memory, networks, and real-world users."
+    
     else:
         response = random.choice(demo_responses)
 
