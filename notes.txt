@@ -81,3 +81,13 @@ refactor: modularize chat functionality into chat.py
 - moved chat loop to separate file
 - imported core RAG functions from main module
 - improved code organization and maintainability
+
+
+
+
+feat: implement API interface for RAG system
+
+- expose chatbot functionality via API endpoint
+- remove unnecessary debug prints
+- improve code cleanliness for production usage
+
