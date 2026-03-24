@@ -6,6 +6,17 @@ from langchain_chroma import Chroma
 # Import only what's needed for chatting
 from dilshangpt_v4_1 import hybrid_retrieve, generate_answer, generate_proper_question , get_existing_vector_store , load_saved_chunks
 
+class Post:
+    """Terminal Color Helper"""
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    SUCCESS = '\033[92m'  # Green
+    WARNING = '\033[93m'  # Yellow
+    FAIL = '\033[91m'     # Red
+    ENDC = '\033[0m'      # Resets color back to normal
+    BOLD = '\033[1m'
+
 def start_chat():
     # Load resources
     # Load the DB From the local Storage
@@ -16,7 +27,7 @@ def start_chat():
 
     chat_history = []
     
-    print("Chatbot Ready! Type exit to quit.")
+    print(f"{Post.SUCCESS}Chatbot Ready! Type exit to quit.{Post.ENDC}")
 
     while True:
         query = input("User: ")

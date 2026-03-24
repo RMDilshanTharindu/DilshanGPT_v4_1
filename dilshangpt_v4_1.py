@@ -38,6 +38,17 @@ from unstructured.chunking.title import chunk_by_title
 
 os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
 
+class Post:
+    """Terminal Color Helper"""
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    SUCCESS = '\033[92m'  # Green
+    WARNING = '\033[93m'  # Yellow
+    FAIL = '\033[91m'     # Red
+    ENDC = '\033[0m'      # Resets color back to normal
+    BOLD = '\033[1m'
+
 
 def load_documents(docs_path="docs"):
   """Load all .txt files in the directory."""
@@ -102,7 +113,7 @@ def create_chunks_by_title(elements):
       combine_text_under_n_chars=500 # merge tiny chunks under 500
   )
 
-  print(f"Smart chunk Created : {len(pdf_chunks)}")
+  print(f"{Post.SUCCESS}Smart chunk Created : {len(pdf_chunks)}...{Post.ENDC}")
   return pdf_chunks
 
 #pdf_chunks = create_chunks_by_title(elements)
@@ -248,11 +259,11 @@ def summerise_chunks(pdf_chunks):
             content_data['tables'],
             content_data['images']
         )
-        print(f"Ai summery creted suvessfully")
+        print(f"{Post.SUCCESS}Ai summery creted suvessfully{Post.ENDC}")
         print(f"Enhansed pdf chunk {enhansed_pdf_chunk}")
 
       except:
-        print(f"Ai summery creted failed")
+        print(f"{Post.WARNING}Ai summery creted failed{Post.ENDC}")
         enhansed_pdf_chunk = content_data['text']
 
     else:
@@ -273,7 +284,7 @@ def summerise_chunks(pdf_chunks):
 
     lanchain_documnets.append(doc)
 
-  print(f"Total Chunks Summerised : {len(lanchain_documnets)}")
+  print(f"{Post.SUCCESS}Total Chunks Summerised : {len(lanchain_documnets)}...{Post.ENDC}")
   return lanchain_documnets
 
 #pdf_chunks_after_summarise = summerise_chunks(pdf_chunks)
@@ -295,7 +306,7 @@ def create_vector_store(chunks , precist_directory = "db/chroma_db"):
       collection_metadata={"hnsw:space": "cosine"}
   )
 
-  print(f"\nFinished Creting Persisting vector store, Stored at {precist_directory}")
+  print(f"\n{Post.SUCCESS}Finished Creting Persisting vector store, Stored at {precist_directory} ... {Post.ENDC}")
 
   return vector_store
 
@@ -310,6 +321,7 @@ def retreve_related_chunks(query, vector_store):
 
   relevent_docs = vector_retrever.invoke(query)
 
+  print(f"{Post.SUCCESS}Documents Found From VectorDB/Similerty : {len(relevent_docs)}...{Post.ENDC}")
   #print relevent docs
   for i,doc in enumerate(relevent_docs):
     print(f"\n Document From Vector DB: {i + 1}")
@@ -327,6 +339,8 @@ def keyword_search(query,chunks):
 
   test_query = query
   keyword_docs  = bm25_retriever.invoke(test_query)
+
+  print(f"{Post.SUCCESS}Documents Found From KeyWord : {len(keyword_docs)}...{Post.ENDC}")
 
   for doc in keyword_docs[:2]:
     print(f"\n\n Docs Found From Keyword {doc.page_content}")
@@ -396,7 +410,7 @@ def generate_proper_question(query,chat_history):
     model="gemini-3-flash-preview",
     contents=prompt
     )
-    print(f"\n\nRewritten Question : {response.text}")
+    print(f"{Post.OKBLUE}\n\nRewritten Question : {response.text}..{Post.ENDC}")
     return response.text
   else:
     return query
@@ -423,7 +437,7 @@ def save_chunks(chunks, filename="chunks_data.pkl"):
     """Saves the processed Langchain documents to a local file."""
     with open(filename, 'wb') as f:
         pickle.dump(chunks, f)
-    print(f"Successfully saved {len(chunks)} chunks to {filename}")
+    print(f"{Post.SUCCESS}Successfully saved {len(chunks)} chunks to {filename} ... {Post.ENDC}")
 
 
 def load_saved_chunks(filename="chunks_data.pkl"):
@@ -431,25 +445,27 @@ def load_saved_chunks(filename="chunks_data.pkl"):
     if os.path.exists(filename):
         with open(filename, 'rb') as f:
             chunks = pickle.load(f)
-        print(f"Loaded {len(chunks)} chunks from local storage.")
+        print(f"{Post.SUCCESS}Loaded {len(chunks)} chunks from local storage.{Post.ENDC}")
         return chunks
     else:
-        print("No saved chunks found! You need to run the ingestion script first.")
+        print(f"{Post.FAIL}No saved chunks found! You need to run the ingestion script first.{Post.ENDC}")
         return None
 
 
 def build_and_save_db():
     
     #Create Chunks
+    print(f"Creating Chunks...")
     chunks = create_chunks()
 
     #Save Chunks on Local Storage
     save_chunks(chunks)
 
     #Create Vector store
+    print(f"Creting Vector Store...")
     vectorStore = create_vector_store(chunks)
 
-    print("Database built and saved locally!")
+    print(f"{Post.SUCCESS}Database built and saved locally!{Post.ENDC}")
 
 
 
@@ -504,42 +520,4 @@ def get_existing_vector_store():
 
 
 
-#print("Main Function")
 
-#documents = load_documents(docs_path="docs")
-
-#----------------------------------------------------CHUNKING-----------------------------------------
-#text_chunks = split_documents(documents)
-
-#Chunk The Pdf Documents
-# file_path = './docs/CYBER_SECURITY.pdf'
-# elements = partition_pdf_doc(file_path)  # make some chunks
-# pdf_chunks = create_chunks_by_title(elements) # create more smart chunks
-# pdf_chunks_after_summarise = summerise_chunks(pdf_chunks)  # handle image/tables in the pdf  : langchain dociments
-
-
-# chunks = text_chunks + pdf_chunks_after_summarise
-# print(f"\nTotal Chunks : {len(chunks)}")
-# print(f"\n Chunks {chunks}")
-
-#ectorStore = create_vector_store(chunks)
-
-# def start_chat():
-#   """Start the chat."""
-#   print("Ask The questions from DilshanGPT, Type exit to exit")
-#   while True:
-#     query = input("Enter Your Question(query) : ")
-#     if query.lower() == "exit":
-#       print("Exiting Chat")
-#       break
-    #proper_query=generate_proper_question(query)
-    # prop_que_to_history = f"User asked : {proper_query}"
-    # chat_history.append(prop_que_to_history)
-    #hybrid_docs = hybrid_retrieve(proper_query)
-
-    #generated_answer = generate_answer(query, hybrid_docs)
-    # gen_ans_to_history = f"DilshanGPT response: {generated_answer}"
-    # chat_history.append(gen_ans_to_history)
-    #print(generated_answer)
-
-# start_chat():
