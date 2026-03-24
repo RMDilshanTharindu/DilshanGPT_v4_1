@@ -3,6 +3,9 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List
 
+from fastapi.middleware.cors import CORSMiddleware
+
+
 # Import your core logic
 from dilshangpt_v4_1 import (
     hybrid_retrieve, 
